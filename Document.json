@@ -1,0 +1,996 @@
+{
+  "name": "Document Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1SzWphIWHN-h0J5GWoDDYK5nPjPzzpcYI",
+          "mode": "list",
+          "cachedResultName": "AI Document Processor",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1SzWphIWHN-h0J5GWoDDYK5nPjPzzpcYI"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        320
+      ],
+      "id": "0d8f2bd6-7f7f-42d9-80c6-49e36b8fcbac",
+      "name": "Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gbyBSG2O6izwjoWy",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a050b74c-9a69-4de3-b9d8-192d670245ce",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "pdf",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1280,
+        320
+      ],
+      "id": "c004db15-ed01-48bf-b482-d6869384f00b",
+      "name": "Chek FIle Format"
+    },
+    {
+      "parameters": {
+        "sendTo": "beranibeda71@gmail.com",
+        "subject": "=⚠️ File Ditolak: {{ $json.name }}",
+        "emailType": "text",
+        "message": "=File \"{{ $json.name }}\" tidak dapat diproses.  \n\nAlasan: Ukuran file melebihi batas 10MB ({{ $json.size }} bytes). Silakan kompres atau pecah dokumen lalu upload ulang.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -832,
+        336
+      ],
+      "id": "14c4e58b-9357-41c1-9d26-c8f24eeaaaed",
+      "name": "Notifikasi Error Size",
+      "webhookId": "b98b3660-5806-4756-abc8-62325d9db9b1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KLSboGoyHHKmVy5y",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "beranibeda71@gmail.com",
+        "subject": "=⚠️ File Ditolak: {{ $json.name }}",
+        "emailType": "text",
+        "message": "=File \"{{ $json.name }}\" tidak dapat diproses.  \n\nAlasan: Tipe file tidak didukung ({{ $json.mimeType }}) Hanya file PDF, JPG, dan PNG yang diterima.  \n\nSilakan upload ulang dengan format yang benar.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1072,
+        448
+      ],
+      "id": "155c7258-7f39-4e06-ba45-c7301b1ff1cf",
+      "name": "Notifikasi Error Format",
+      "webhookId": "0c3ac70b-eaf9-4f0f-b920-ef13708fc538",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KLSboGoyHHKmVy5y",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3f7b571a-5c79-48c2-be49-3ffa96269f96",
+              "leftValue": "={{ $json.size }}",
+              "rightValue": 10000000,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1072,
+        224
+      ],
+      "id": "fa110901-aba9-4632-b5a0-8829bb420927",
+      "name": "Chek Size"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $('Drive Trigger').first().json.id }}?alt=media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -848,
+        64
+      ],
+      "id": "b3904c98-6104-43a9-85c5-8ad91625591e",
+      "name": "Download file 1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gbyBSG2O6izwjoWy",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "type": "file",
+              "fileType": "base64",
+              "binaryPropertyName": "={{ $('Download file 1').first().binary.data }}",
+              "fileName": "={{ $('Drive Trigger').item.json.originalFilename }}"
+            },
+            {
+              "content": "=Kamu adalah sistem ekstraksi dokumen keuangan. Ekstrak informasi dari dokumen ini dan kembalikan HANYA dalam format JSON berikut, tanpa teks tambahan:\n\n{\"document_type\": \"invoice|receipt|report|other\", \"vendor_name\": \"\", \"document_number\": \"\", \"document_date\": \"\", \"due_date\": \"\", \"total_amount\": 0, \"currency\": \"IDR\", \"tax_amount\": 0, \"line_items\": [{\"description\": \"\", \"quantity\": 0, \"unit_price\": 0, \"total\": 0}], \"notes\": \"\", \"confidence_score\": 0.0}\n\nUntuk confidence_score berikan nilai 0.0-1.0 berdasarkan seberapa jelas dokumen terbaca."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        304
+      ],
+      "id": "e6121824-3648-4673-b1f8-0da52bf4799a",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "QHzSg6iAb82JDUhU",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = items[0].json.output[0].content[0].text;\n\nconst cleaned = output\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nconst parsed = JSON.parse(cleaned);\n\nreturn [\n  {\n    json: {\n      ...parsed,\n      fileName: $('Drive Trigger').first().json.name,\n      fileId: $('Drive Trigger').first().json.id,\n      uploadedAt: $('Drive Trigger').first().json.createdTime,\n      processedAt: new Date().toISOString(),\n      status: parsed.confidence_score >= 0.7 ? 'processed' : 'needs_review'\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        304
+      ],
+      "id": "ef30f856-9241-47f6-8c4e-1a6e2fb12607",
+      "name": "Parsing Value"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "68d84f0e-bc00-47b3-ba23-965a72856ea7",
+              "leftValue": "={{ $json.confidence_score }}",
+              "rightValue": 0.7,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        304
+      ],
+      "id": "a64d712c-46d2-43f7-bb97-412a485a1dcb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "beranibeda71@gmail.com",
+        "subject": "=⚠️ Perlu Review Manual: {{ $json.name }} (Confidence: {{ $('If').item.json.confidence_score }})",
+        "emailType": "text",
+        "message": "=Dokumen berikut memerlukan review manual karena confidence score rendah:  \n\nFile: {{ $('If').item.json.fileName }}\nVendor: {{ $('If').item.json.vendor_name }}\nNomor Dokumen: {{ $('If').item.json.document_number }}\nTotal: {{ $('If').item.json.currency }} {{ $('If').item.json.total_amount }}\nConfidence Score: {{ $('If').item.json.confidence_score }}\n\nDokumen telah dipindahkan ke folder Needs Review di Google Drive. Silakan periksa dan input data secara manual.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        400
+      ],
+      "id": "bf816251-96ad-4954-a342-b40485d1e361",
+      "name": "Need Review",
+      "webhookId": "49b46b3b-bcd4-41c7-922b-22c457139a44",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KLSboGoyHHKmVy5y",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Parsing Value').item.json.fileId }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1YcnMpXL1QwX9ONdgsjV7jpQw2_uOpkhp",
+          "mode": "list",
+          "cachedResultName": "Needs Review",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1YcnMpXL1QwX9ONdgsjV7jpQw2_uOpkhp"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        800,
+        400
+      ],
+      "id": "a74793de-0d73-4fcf-b665-cb8325cdd334",
+      "name": "Move to Need Review",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gbyBSG2O6izwjoWy",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Parsing Value').item.json.fileId }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "15pjsngS1B4no1VhDVmK0DiYzbYfgyJso",
+          "mode": "list",
+          "cachedResultName": "Processed",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/15pjsngS1B4no1VhDVmK0DiYzbYfgyJso"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1104,
+        176
+      ],
+      "id": "77f710c0-be9e-4ac1-8e1f-015ff7e6017b",
+      "name": "Move to Need Processed",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gbyBSG2O6izwjoWy",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "beranibeda71@gmail.com",
+        "subject": "=✅ Dokumen Berhasil Diproses: {{ $('Input Data Log').item.json['Vendor Name'] }} — {{ $('Input Data Log').item.json['Document Number'] }}",
+        "emailType": "text",
+        "message": "=Dokumen berhasil diproses oleh sistem AI Document Processor.\n\nFile: {{ $('Input Data Log').item.json['File Name'] }}\nVendor: {{ $('Input Data Log').item.json['Vendor Name'] }}\nNomor Dokumen: {{ $('Input Data Log').item.json['Document Number'] }}\nTanggal: {{ $('Input Data Log').item.json['Document Date'] }}\nJatuh Tempo: {{ $('Input Data Log').item.json['Due Date'] }}\nTotal: {{ $('Input Data Log').item.json.Currency }} {{ $('Input Data Log').item.json['Total Amount'] }}\nPPN: {{ $('Input Data Log').item.json['Tax Ammount'] }}\nConfidence Score: {{ $('Input Data Log').item.json['Confidence Score'] }}\n\nData telah tersimpan di Google Sheets.\nFile telah dipindahkan ke folder Processed.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        176
+      ],
+      "id": "072b0650-c6db-46a8-876c-828e447507f7",
+      "name": "Send Success Message",
+      "webhookId": "49b46b3b-bcd4-41c7-922b-22c457139a44",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KLSboGoyHHKmVy5y",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg",
+          "mode": "list",
+          "cachedResultName": "AI Document Processor - Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.processedAt }}",
+            "File Name": "={{ $json.fileName }}",
+            "File ID": "={{ $json.fileId }}",
+            "Vendor Name": "={{ $json.vendor_name }}",
+            "Document Number": "={{ $json.document_number }}",
+            "Document Date": "={{ $json.document_date }}",
+            "Due Date": "={{ $json.due_date }}",
+            "Total Amount": "={{ $json.total_amount }}",
+            "Currency": "={{ $json.currency }}",
+            "Tax Ammount": "={{ $json.tax_amount }}",
+            "Confidence Score": "={{ $json.confidence_score }}",
+            "Status": "={{ $json.status }}",
+            "Document Type": "={{ $json.document_type }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File ID",
+              "displayName": "File ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Document Type",
+              "displayName": "Document Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor Name",
+              "displayName": "Vendor Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Document Number",
+              "displayName": "Document Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Document Date",
+              "displayName": "Document Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Due Date",
+              "displayName": "Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tax Ammount",
+              "displayName": "Tax Ammount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        912,
+        176
+      ],
+      "id": "4a0d7103-5f1d-431d-886a-0dc5787c817f",
+      "name": "Input Data Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UgRZyCHsyZIzjML7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg",
+          "mode": "list",
+          "cachedResultName": "AI Document Processor - Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1395811408,
+          "mode": "list",
+          "cachedResultName": "Dashboard Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg/edit#gid=1395811408"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $('Parsing Value').item.json.document_date }}",
+            "File Name": "={{ $('Parsing Value').item.json.fileName }}",
+            "Document Type": "={{ $('Parsing Value').item.json.document_type }}",
+            "Vendor Name": "={{ $('Parsing Value').item.json.vendor_name }}",
+            "Total Amount": "={{ $('Parsing Value').item.json.total_amount }}",
+            "Confidence Score": "={{ $('Parsing Value').item.json.confidence_score }}",
+            "Status": "={{ $('Parsing Value').item.json.status }}",
+            "Processing Time": "={{ Math.round((new Date($('Parsing Value').item.json.processedAt).getTime() - new Date($('Parsing Value').item.json.uploadedAt).getTime()) / 1000) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Document Type",
+              "displayName": "Document Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor Name",
+              "displayName": "Vendor Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence Score",
+              "displayName": "Confidence Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Processing Time",
+              "displayName": "Processing Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1536,
+        176
+      ],
+      "id": "e555b7bd-4bea-46b4-ac71-09f6b7cbd55f",
+      "name": "Input Data Dashboard Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UgRZyCHsyZIzjML7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      fileName: item.binary?.data?.fileName ?? 'unknown',\n      mimeType: item.binary?.data?.mimeType ?? 'unknown',\n      fileId: item.json?.id ?? '',\n      uploadedAt: new Date().toISOString()\n    }\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        64
+      ],
+      "id": "7decb36d-a4d0-4f5c-b2d9-9c57bd53abe2",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg",
+          "mode": "list",
+          "cachedResultName": "AI Document Processor - Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A243IkH2wruxTe0aYzbIHgI7dJ6OZJtyVY9NUJVKbKg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "File Name",
+              "lookupValue": "={{ $('Drive Trigger').item.json.originalFilename }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -432,
+        64
+      ],
+      "id": "23e04167-0dcd-49a8-8ab3-0c1e4632d149",
+      "name": "Check Duplicate",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UgRZyCHsyZIzjML7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f229b474-4989-4676-8f94-423d2f6e0e64",
+              "leftValue": "={{ $json['File Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        64
+      ],
+      "id": "d21a16e2-c9ed-44aa-9874-8d40b3665da6",
+      "name": "Duplicate Condition"
+    },
+    {
+      "parameters": {
+        "sendTo": "beranibeda71@gmail.com",
+        "subject": "=⚠️ Dokumen Duplikat: {{ $json['File Name'] }}",
+        "emailType": "text",
+        "message": "=File \"{{ $json['File Name'] }}\" sudah pernah diproses sebelumnya.  \n\nFile ini tidak akan diproses ulang untuk mencegah duplikasi data.  Jika ini bukan duplikat, silakan hubungi tim IT.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        -32
+      ],
+      "id": "783083c5-2c17-49c9-86c0-a0ac7d87f88b",
+      "name": "Send a message",
+      "webhookId": "8ceb2009-331d-400a-87d1-1de6d4f376cb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KLSboGoyHHKmVy5y",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Chek FIle Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chek FIle Format": {
+      "main": [
+        [
+          {
+            "node": "Chek Size",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notifikasi Error Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chek Size": {
+      "main": [
+        [
+          {
+            "node": "Download file 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notifikasi Error Size",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file 1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Parsing Value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsing Value": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Input Data Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move to Need Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Need Review": {
+      "main": [
+        [
+          {
+            "node": "Need Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Need Processed": {
+      "main": [
+        [
+          {
+            "node": "Send Success Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Data Log": {
+      "main": [
+        [
+          {
+            "node": "Move to Need Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Success Message": {
+      "main": [
+        [
+          {
+            "node": "Input Data Dashboard Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Duplicate Condition",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate Condition": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e0b5696c-d2b6-4d58-8309-c28feb5cefa9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "48adfcee374d20c8165ca547e53762187e8d8910b0ca417a274fcc1eb4f6e321"
+  },
+  "id": "R8jZqX4HSgbiIABd",
+  "tags": []
+}
